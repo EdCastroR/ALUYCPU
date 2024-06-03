@@ -1,0 +1,43 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_ARITH.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
+
+entity alu is
+    Port (
+		  --entrada
+        A     : in  STD_LOGIC_VECTOR (7 downto 0);
+        B     : in  STD_LOGIC_VECTOR (7 downto 0);
+        ALU_Sel : in  STD_LOGIC_VECTOR (3 downto 0);
+        --salida
+		  ALU_Result : out STD_LOGIC_VECTOR (7 downto 0);
+        CCR : out STD_LOGIC_VECTOR (3 downto 0) -- NZVC flags
+    );
+end alu;
+
+architecture alu_arch of alu is
+    signal result : STD_LOGIC_VECTOR (7 downto 0);
+    signal N, Z, V, C : STD_LOGIC;
+begin
+    process (A, B, ALU_Sel)
+    begin
+        case ALU_Sel is
+            when "0000" => result <= A + B;      -- Suma
+            when "0001" => result <= A - B;      -- Resta
+            when "0010" => result <= A and B;    -- AND
+            when "0011" => result <= A or B;     -- OR
+            when "0100" => result <= not A;      -- NOT
+            when others => result <= (others => '0'); -- Valor por defecto
+        end case;
+
+        -- Actualización de los flags
+        N <= result(7);
+        Z <= '1' when result = "00000000" else '0';
+        V <= '0'; -- Ejemplo simple, no se calcula overflow aquí
+        C <= '0'; -- Ejemplo simple, no se calcula acarreo aquí
+
+        ALU_Result <= result;
+        CCR <= N & Z & V & C;
+    end process;
+
+end alu_arch;
